@@ -44,6 +44,11 @@ const odataQuerySchema = z.object({
     crossCompany: z.boolean().optional().describe("Set to true to query across all companies."),
 });
 
+
+const createLegalEntitieSchema = z.object({
+    legalEntityData: z.record(z.unknown()).describe("A JSON object for the new legal entity. Must include name, company, etc."),
+});
+
 const createCustomerSchema = z.object({
     customerData: z.record(z.unknown()).describe("A JSON object for the new customer. Must include dataAreaId, CustomerAccount, etc."),
 });
@@ -196,6 +201,18 @@ export const getServer = (): McpServer => {
         async ({ customerGroupData }: z.infer<typeof createCustomerGroupSchema>, context: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
             const url = `${process.env.DYNAMICS_RESOURCE_URL}/data/CustomerGroups`;
             return makeApiCall('POST', url, customerGroupData as Record<string, unknown>, async (notification) => {
+                await safeNotification(context, notification);
+            });
+        }
+    );
+
+      server.tool(
+        'createLegalEntity',
+        'Creates a new legal entity record in Legal entities.',
+        createLegalEntitieSchema.shape,
+        async ({ legalEntityData }: z.infer<typeof createLegalEntitieSchema>, context: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+            const url = `${process.env.DYNAMICS_RESOURCE_URL}/data/LegalEntities`;
+            return makeApiCall('POST', url, legalEntityData as Record<string, unknown>, async (notification) => {
                 await safeNotification(context, notification);
             });
         }
@@ -375,6 +392,7 @@ export const getServer = (): McpServer => {
 
     return server;
 };
+
 
 
 
