@@ -194,7 +194,7 @@ export const getServer = (): McpServer => {
         'Creates a new customer group record in CustCUstomerGroup.',
         createCustomerGroupSchema.shape,
         async ({ customerGroupData }: z.infer<typeof createCustomerGroupSchema>, context: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-            const url = `${process.env.DYNAMICS_RESOURCE_URL}/data/CustCustomerGroup`;
+            const url = `${process.env.DYNAMICS_RESOURCE_URL}/data/CustomerGroups`;
             return makeApiCall('POST', url, customerGroupData as Record<string, unknown>, async (notification) => {
                 await safeNotification(context, notification);
             });
@@ -375,5 +375,6 @@ export const getServer = (): McpServer => {
 
     return server;
 };
+
 
 
