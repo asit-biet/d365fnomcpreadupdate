@@ -48,6 +48,10 @@ const createCustomerSchema = z.object({
     customerData: z.record(z.unknown()).describe("A JSON object for the new customer. Must include dataAreaId, CustomerAccount, etc."),
 });
 
+const createCustomerGroupSchema = z.object({
+    customerGroupData: z.record(z.unknown()).describe("A JSON object for the new customer group. Must include dataAreaId, customer group id, etc."),
+});
+
 const createItemSchema = z.object({
     itemData: z.record(z.unknown()).describe("A JSON object for the new item. Must include dataAreaId, ItemNumber,ProductNumber etc."),
 });
@@ -185,6 +189,18 @@ export const getServer = (): McpServer => {
         }
     );
 
+      server.tool(
+        'createCustomerGroup',
+        'Creates a new customer group record in CustCUstomerGroup.',
+        createCustomerGroupSchema.shape,
+        async ({ customerGroupData }: z.infer<typeof createCustomerGroupSchema>, context: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+            const url = `${process.env.DYNAMICS_RESOURCE_URL}/data/CustCustomerGroup`;
+            return makeApiCall('POST', url, customerGroupData as Record<string, unknown>, async (notification) => {
+                await safeNotification(context, notification);
+            });
+        }
+    );
+
      server.tool(
         'createItem',
         'Creates a new item record in ReleasedProductCreationsV2.',
@@ -269,6 +285,8 @@ export const getServer = (): McpServer => {
             });
         }
     );
+
+    
 
      server.tool(
         'updateItem',
@@ -357,3 +375,4 @@ export const getServer = (): McpServer => {
 
     return server;
 };
+
