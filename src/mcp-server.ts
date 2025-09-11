@@ -57,6 +57,11 @@ const createCustomerGroupSchema = z.object({
     customerGroupData: z.record(z.unknown()).describe("A JSON object for the new customer group. Must include dataAreaId, customer group id, etc."),
 });
 
+
+const createVendorGroupSchema = z.object({
+    vendorGroupData: z.record(z.unknown()).describe("A JSON object for the new customer group. Must include dataAreaId, vendor group id, etc."),
+});
+
 const createItemSchema = z.object({
     itemData: z.record(z.unknown()).describe("A JSON object for the new item. Must include dataAreaId, ItemNumber,ProductNumber etc."),
 });
@@ -206,6 +211,18 @@ export const getServer = (): McpServer => {
         }
     );
 
+     server.tool(
+        'createVendorGroup',
+        'Creates a new vendor group record in VendorGroups.',
+        createVendorGroupSchema.shape,
+        async ({ vendorGroupData }: z.infer<typeof createVendorGroupSchema>, context: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+            const url = `${process.env.DYNAMICS_RESOURCE_URL}/data/VendorGroups`;
+            return makeApiCall('POST', url, vendorGroupData as Record<string, unknown>, async (notification) => {
+                await safeNotification(context, notification);
+            });
+        }
+    );
+
       server.tool(
         'createLegalEntity',
         'Creates a new legal entity record in Legal entities.',
@@ -218,7 +235,7 @@ export const getServer = (): McpServer => {
         }
     );
 
-     server.tool(
+     /*server.tool(
         'createItem',
         'Creates a new item record in ReleasedProductCreationsV2.',
         createItemSchema.shape,
@@ -315,7 +332,7 @@ export const getServer = (): McpServer => {
                 await safeNotification(context, notification);
             });
         }
-    );
+    );*/
 /*
     server.tool(
         'getEntityCount',
@@ -392,6 +409,7 @@ export const getServer = (): McpServer => {
 
     return server;
 };
+
 
 
 
